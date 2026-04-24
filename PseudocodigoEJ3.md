@@ -2,39 +2,39 @@
 
 ## Ejercicio 3: Monitores
 
-En este ejercicio se quiere simular mediante un programa concurrente la actividad en un gimnasio.
-El flujo para entrenar es el siguiente:
-        1. **Acceso al gimnasio mediante tornos**
-            1. Un cliente llega al gimnasio y debe pasar por uno de los 3 tornos de acceso para validar su entrada. 
-            2. Cada torno tiene su cola individual.
-            3. El tiempo que tarda el cliente en completar el acceso (validación + entrada) es X milisegundos (valor aleatorio entre 1 y 5).
-            4. El cliente debe situarse en el primer torno que encuentre libre; si los 3 están ocupados, esperará en la cola del torno que tenga menor tiempo de espera.
-        2. **Elección de zona de entrenamiento**
-            1. Tras pasar la zona de tornos, el cliente elige a qué zona de entrenamiento dirigirse en función del tiempo estimado de espera.
-            2. El gimnasio tiene 4 zonas, y cada zona dispone de 5 máquinas: Zona 1 – Cardio, Zona 2 – Fuerza, Zona 3 – Funcional, Zona 4 - Estiramientos .
-            3. Un cliente puede entrar a una zona si al menos una de sus máquinas está libre. Si hay varias zonas con máquinas libres elegirá una de forma aleatoria.
-            4. Si las 5 máquinas de una zona están ocupadas, el cliente debe esperar en la cola de acceso de esa zona (una cola por zona).
-            5. Dentro de la zona de Cardio existe una bicicleta premium que tiene una cola exclusiva propia, independiente de la cola general de la zona.
-            6. Un cliente puede entrar en Cardio si hay alguna de las 5 máquinas libres (según el paso 2). Si el cliente desea usar la bicicleta premium (decisión con probabilidad del 30%) y está ocupada, deberá esperar en la cola exclusiva de la bicicleta premium, incluso aunque ya esté dentro.
-            7. El entrenamiento tarda Y milisegundos (valor aleatorio por cliente), representado mediante el método Sleep() de Java.
+En este ejercicio se quiere simular mediante un programa concurrente la actividad en un gimnasio. <br>
+El flujo para entrenar es el siguiente:<br>
+        1. **Acceso al gimnasio mediante tornos**<br>
+            1. Un cliente llega al gimnasio y debe pasar por uno de los 3 tornos de acceso para validar su entrada. <br>
+            2. Cada torno tiene su cola individual.<br>
+            3. El tiempo que tarda el cliente en completar el acceso (validación + entrada) es X milisegundos (valor aleatorio entre 1 y 5).<br>
+            4. El cliente debe situarse en el primer torno que encuentre libre; si los 3 están ocupados, esperará en la cola del torno que tenga menor tiempo de espera.<br><br>
+        2. **Elección de zona de entrenamiento**<br>
+            1. Tras pasar la zona de tornos, el cliente elige a qué zona de entrenamiento dirigirse en función del tiempo estimado de espera.<br>
+            2. El gimnasio tiene 4 zonas, y cada zona dispone de 5 máquinas: Zona 1 – Cardio, Zona 2 – Fuerza, Zona 3 – Funcional, Zona 4 - Estiramientos.<br>
+            3. Un cliente puede entrar a una zona si al menos una de sus máquinas está libre. Si hay varias zonas con máquinas libres elegirá una de forma aleatoria.<br>
+            4. Si las 5 máquinas de una zona están ocupadas, el cliente debe esperar en la cola de acceso de esa zona (una cola por zona).<br>
+            5. Dentro de la zona de Cardio existe una bicicleta premium que tiene una cola exclusiva propia, independiente de la cola general de la zona.<br>
+            6. Un cliente puede entrar en Cardio si hay alguna de las 5 máquinas libres (según el paso 2). Si el cliente desea usar la bicicleta premium (decisión con probabilidad del 30%) y está ocupada, deberá esperar en la cola exclusiva de la bicicleta premium, incluso aunque ya esté dentro.<br>
+            7. El entrenamiento tarda Y milisegundos (valor aleatorio por cliente), representado mediante el método Sleep() de Java.<br><br>
         
-Se realizará una simulación con 50 hilos cliente, con valores X e Y inicializados aleatoriamente. Desarrollar un programa concurrente en Java para resolver el problema anterior usando monitores como mecanismo para la sincronización.
-Formato de salida obligatorio: Justo antes de decidir a qué zona dirigirse, cada cliente debe imprimir en pantalla:
---------------------------------------------------------------
-Cliente id ha pasado por el torno: -----
-Tiempo en el torno (acceso): X
-Zona elegida: -----
-Tiempo de entrenamiento: Y
-Estimación de espera (sin incluirse a sí mismo):
-Zona1(Cardio)=----, Zona2(Fuerza)=----, Zona3(Funcional)=----,
-Zona4(Estiramientos)=----
-Espera bicicleta premium (si aplica)=----
---------------------------------------------------------------
+Se realizará una simulación con 50 hilos cliente, con valores X e Y inicializados aleatoriamente. Desarrollar un programa concurrente en Java para resolver el problema anterior usando monitores como mecanismo para la sincronización.<br>
+Formato de salida obligatorio: Justo antes de decidir a qué zona dirigirse, cada cliente debe imprimir en pantalla:<br><br>
+--------------------------------------------------------------<br>
+Cliente id ha pasado por el torno: -----<br>
+Tiempo en el torno (acceso): X<br>
+Zona elegida: -----<br>
+Tiempo de entrenamiento: Y<br>
+Estimación de espera (sin incluirse a sí mismo):<br>
+Zona1(Cardio)=----, Zona2(Fuerza)=----, Zona3(Funcional)=----,<br>
+Zona4(Estiramientos)=----<br>
+Espera bicicleta premium (si aplica)=----<br>
+--------------------------------------------------------------<br><br>
 
 
 # PSEUDOCÓDIGO
 
-MONITOR gimnasio:
+MONITOR gimnasio:<br>
 
     Entero tiempoTornos[3] = {0, 0, 0}
     Entero tiempoZonas[4] = {0, 0, 0, 0} // Tiempo de espera en cada zona
@@ -94,10 +94,10 @@ MONITOR gimnasio:
         FIN SI
     FIN FUNCION
 
-FIN MONITOR
+FIN MONITOR<br>
 
 
-PROCESO Cliente:
+PROCESO Cliente:<br>
 
     Entero id
     Entero X = aleatorio(1, 5) // Tiempo en el torno (en milisegundos)
@@ -141,11 +141,11 @@ PROCESO Cliente:
         FIN SI
 
         gimnasio.liberarZona(zona)
-FIN PROCESO
+FIN PROCESO<br>
 
 
-PROCESO Principal:
-    Hilo clientes[50]
+PROCESO Principal:<br>
+    Hilo clientes[50]<br>
 
     PARA i = 0 HASTA 49 HACER
         clientes[i] = crearHilo Cliente(i)
