@@ -53,8 +53,11 @@ PROCESO Aficionado
     Entero id
 
     PARA i = 0 HASTA 4 HACER
-        // Acción previa y solicitar validación
-        Sleep(aleatorioEntre(1, 10))
+        // Acción previa
+        Entero tiempoPrevio = aleatorioEntre(1, 10)
+        Sleep(tiempoPrevio)
+
+        // Tiempo estimado de validación
         Entero tiempoEstimado = aleatorioEntre(1, 10)
 
         // Enviar petición al controlador de accesos
