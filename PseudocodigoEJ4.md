@@ -25,4 +25,93 @@ Thread.sleep(T)
 Aficionado id liberando la cola X”
 ```
 <br><br>
+
 # PSEUDOCÓDIGO
+
+PROCESO ControladorAccesos
+
+    Buzón buzónControlador, buzónTornoR, buzónTornoL
+    Buzón[50] buzonesAficionados
+
+    PARA SIEMPRE HACER
+        Mensaje peticion = buzónControlador.recibir()
+        Caracter torno
+
+        SI peticion.tiempoEstimado <= 5 ENTONCES
+            torno = 'R'
+        SINO
+            torno = 'L'
+        FIN SI
+
+        buzonesAficionados[peticion.id].enviar(torno)
+    FIN PARA
+
+FIN PROCESO
+
+PROCESO Aficionado
+
+    Entero id
+
+    PARA i = 0 HASTA 4 HACER
+        // Acción previa y solicitar validación
+        Sleep(aleatorioEntre(1, 10))
+        Entero tiempoEstimado = aleatorioEntre(1, 10)
+
+        // Enviar petición al controlador de accesos
+        Mensaje peticion = {
+            id: id,
+            tiempoEstimado: tiempoEstimado
+        }
+        buzónControlador.enviar(peticion)
+        Caracter tornoAsignado = buzonesAficionados[id].recibir()
+
+        SI tornoAsignado == 'R' ENTONCES
+            buzonTornoR.recibir()
+        SINO
+            buzonTornoL.recibir()
+        FIN SI
+
+        Imprimir "Aficionado " + id + " ha usado la cola " + tornoAsignado
+        Imprimir "Tiempo de validación = " + tiempoEstimado
+        Imprimir "Thread.sleep(" + tiempoEstimado + ")" 
+        Sleep(tiempoEstimado)
+
+        SI tornoAsignado == 'R' ENTONCES
+            buzonTornoR.enviar("LIBRE")
+        SINO
+            buzonTornoL.enviar("LIBRE")
+        FIN SI
+
+        Imprimir "Aficionado " + id + " liberando la cola " + tornoAsignado
+    FIN PARA
+FIN PROCESO
+
+
+
+
+
+PROCESO Principal
+    
+    Buzón buzónControlador = crearBuzón(50)
+    Buzón buzónTornoR, buzónTornoL = crearBuzón(1)
+
+    Buzón[50] buzonesAficionados
+    Hilo[50] aficionados
+
+    PARA i = 0 HASTA 49 HACER
+        buzonesAficionados[i] = crearBuzón(1)
+    FIN PARA
+
+    Hilo controlador = ControladorAccesos(buzónControlador, buzónTornoR, buzónTornoL, buzonesAficionados)
+
+    buzonTornoR.enviar("LIBRE")
+    buzonTornoL.enviar("LIBRE")
+
+    controlador.iniciar()
+    PARA i = 0 HASTA 49 HACER
+        aficionados[i] = Aficionado(i, buzónControlador, buzonesAficionados)
+        aficionados[i].iniciar()
+    FIN PARA
+
+FIN PROCESO
+
