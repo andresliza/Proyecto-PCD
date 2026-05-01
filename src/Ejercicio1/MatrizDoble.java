@@ -34,9 +34,9 @@ public class MatrizDoble implements Runnable {
 	private void imprimeMatriz(int[][] impresa) {
 		for(int i = 0; i < tamanoMatriz; i++) {
 			for(int j = 0; j < tamanoMatriz; j++) {
-				Programa.mensaje.escribir_mensaje(impresa[i][j] + " ");
+				System.out.print(impresa[i][j] + " ");
 			}
-			Programa.mensaje.escribir_mensaje("\n");
+			System.out.println();
 		}
 	}
 	
@@ -49,14 +49,13 @@ public class MatrizDoble implements Runnable {
 			//INICIA SECCIÓN CRÍTICA
 			
 			try {
-				Programa.mensaje.escribir_mensaje("A + A \n");
+				System.out.println("A + A");
 				imprimeMatriz(matriz);
-				Programa.mensaje.escribir_mensaje("+ \n");
+				System.out.println("+");
 				imprimeMatriz(matriz);
-				Programa.mensaje.escribir_mensaje("= \n");
-				Programa.mensaje.escribir_mensaje("2A \n");
+				System.out.println("= ");
+				System.out.println("2A");
 				imprimeMatriz(matrizDoble);
-				Programa.mensaje.escribir_mensaje("\n . ݁₊ ⊹ . ݁ ⟡ ݁ . ⊹ ₊ ݁. \n \n");
 				//FIN SECCIÓN CRÍTICA
 			} finally {
 				Programa.pantalla.unlock();
@@ -66,7 +65,6 @@ public class MatrizDoble implements Runnable {
 				Random random = new Random();
 				Thread.sleep(random.nextInt(20));
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			

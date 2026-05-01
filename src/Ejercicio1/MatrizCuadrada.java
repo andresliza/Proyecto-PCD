@@ -38,9 +38,9 @@ public class MatrizCuadrada implements Runnable {
 	private void imprimeMatriz(int[][] impresa) {
 		for(int i = 0; i < tamanoMatriz; i++) {
 			for(int j = 0; j < tamanoMatriz; j++) {
-				Programa.mensaje.escribir_mensaje(impresa[i][j] + " ");
+				System.out.print(impresa[i][j] + " ");
 			}
-			Programa.mensaje.escribir_mensaje("\n");
+			System.out.println();
 		}
 	}
 	
@@ -53,14 +53,14 @@ public class MatrizCuadrada implements Runnable {
 			//INICIA SECCIÓN CRÍTICA
 			
 			try {
-				Programa.mensaje.escribir_mensaje("A x A \n");
+				System.out.println("A x A");
 				imprimeMatriz(matriz);
-				Programa.mensaje.escribir_mensaje("X \n");
+				System.out.println("X");
 				imprimeMatriz(matriz);
-				Programa.mensaje.escribir_mensaje("= \n");
-				Programa.mensaje.escribir_mensaje("A2 \n");
+				System.out.println("= ");
+				System.out.println("A2");
 				imprimeMatriz(matrizCuadrada);
-				Programa.mensaje.escribir_mensaje("\n . ݁₊ ⊹ . ݁ ⟡ ݁ . ⊹ ₊ ݁. \n \n");
+				System.out.println("\n . ݁₊ ⊹ . ݁ ⟡ ݁ . ⊹ ₊ ݁. \n \n");
 				//FIN SECCIÓN CRÍTICA
 			} finally {
 				Programa.pantalla.unlock();
@@ -70,7 +70,6 @@ public class MatrizCuadrada implements Runnable {
 				Random random = new Random();
 				Thread.sleep(random.nextInt(20));
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			

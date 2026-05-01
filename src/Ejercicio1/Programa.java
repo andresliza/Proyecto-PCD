@@ -3,9 +3,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class Programa {
 	public static ReentrantLock pantalla = new ReentrantLock();
-	
-	public static Panel mensaje = new Panel("Hello Jon", 200, 200);
-	
+		
 	public static void main(String args[]) {
 		MatrizCuadrada a = new MatrizCuadrada(3);
 		MatrizDoble b = new MatrizDoble(3);
@@ -20,7 +18,6 @@ public class Programa {
 			t1.join();
 			t2.join();
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
