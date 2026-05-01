@@ -36,7 +36,7 @@ Espera bicicleta premium (si aplica)=----<br>
 
 MONITOR MonitorPantalla:
     
-    PROCEDIMIENTO imprimirInforme(id, X, Y, torno, zona, esPremium, esperasZonas, esperaBici):
+    FUNCION imprimirInforme(id, X, Y, torno, zona, esPremium, esperasZonas, esperaBici):
         Imprimir "--------------------------------------------------------------"
         Imprimir "Cliente " + id + " ha pasado por el torno: " + torno
         Imprimir "Tiempo en el torno (acceso): " + X
@@ -48,7 +48,7 @@ MONITOR MonitorPantalla:
             Imprimir "Espera bicicleta premium: " + esperaBici
         FIN SI
         Imprimir "--------------------------------------------------------------"
-    FIN PROCEDIMIENTO
+    FIN FUNCION
 
 FIN MONITOR
 
@@ -67,7 +67,7 @@ MONITOR MonitorGimnasio:
         SI torno == -1 ENTONCES
             Entero tornoMenorEspera = obtenerTornoMenorEspera()
             MIENTRAS tiempoTornos[tornoMenorEspera] > 0 HACER
-                WAIT()
+                wait()
                 tornoMenorEspera = obtenerTornoMenorEspera()
             FIN MIENTRAS
             torno = tornoMenorEspera
@@ -77,10 +77,10 @@ MONITOR MonitorGimnasio:
         RETORNAR torno
     FIN FUNCION
 
-    PROCEDIMIENTO liberarTorno(Entero torno, Entero X):
+    FUNCION liberarTorno(Entero torno, Entero X):
         tiempoTornos[torno] -= X
-        SIGNAL_ALL()
-    FIN PROCEDIMIENTO
+        signalAll()
+    FIN FUNCION
 
     FUNCION usarZona(Entero clienteId, Entero X, Entero Y, Entero torno):
         Entero zona
@@ -91,14 +91,13 @@ MONITOR MonitorGimnasio:
         SINO
             zona = obtenerZonaMenorEspera()
             MIENTRAS maquinasZona[zona] == 0 HACER
-                WAIT()
+                wait()
                 zona = obtenerZonaMenorEspera()
             FIN MIENTRAS
         FIN SI
 
         Boolean esPremium = (zona == 0 Y aleatorio() < 0.3)
         
-        // Impresión sincronizada fuera del monitor del gimnasio para no bloquearlo
         pantalla.imprimirInforme(clienteId, X, Y, torno, zona, esPremium, tiempoZonas, tiempoBicicletaPremium)
 
         tiempoZonas[zona] += Y
@@ -107,25 +106,25 @@ MONITOR MonitorGimnasio:
         RETORNAR {zona, esPremium}
     FIN FUNCION
 
-    PROCEDIMIENTO liberarZona(Entero zona, Entero Y):
+    FUNCION liberarZona(Entero zona, Entero Y):
         tiempoZonas[zona] -= Y
         maquinasZona[zona] += 1
-        SIGNAL_ALL()
-    FIN PROCEDIMIENTO
+        signalAll()
+    FIN FUNCION
 
-    PROCEDIMIENTO usarBicicletaPremium(Entero Y):
+    FUNCION usarBicicletaPremium(Entero Y):
         MIENTRAS bicicletaPremiumEnUso HACER
-            WAIT()
+            wait()
         FIN MIENTRAS
         bicicletaPremiumEnUso = verdadero
         tiempoBicicletaPremium += Y
-    FIN PROCEDIMIENTO
+    FIN FUNCION
 
-    PROCEDIMIENTO liberarBicicletaPremium(Entero Y):
+    FUNCION liberarBicicletaPremium(Entero Y):
         tiempoBicicletaPremium -= Y
         bicicletaPremiumEnUso = falso
-        SIGNAL_ALL()
-    FIN PROCEDIMIENTO
+        signalAll()
+    FIN FUNCION
 
 FIN MONITOR
 
@@ -143,7 +142,7 @@ PROCESO Cliente:
         Sleep(X)
         gimnasio.liberarTorno(torno, X)
 
-        // Paso 2: Zona (incluye elección e impresión atómica)
+        // Paso 2: Zona
         {zona, esPremium} = gimnasio.usarZona(id, X, Y, torno)
 
         SI esPremium ENTONCES
