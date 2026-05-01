@@ -5,16 +5,14 @@ public class Cliente implements Runnable {
 	
 	private int id;
 	private MonitorGimnasio monitor;
-	private int X = (int) (Math.random() * 5) + 1; // Tiempo en torno entre 1 y 5 segundos
-	private int Y = (int) (Math.random() * 240) + 60; // Tiempo en zona (60 a 300 segundos)
+	private int X = (int) (Math.random() * 5) + 1;
+	private int Y = (int) (Math.random() * 240) + 60;
 	
-	// Constructor
 	public Cliente(int id, MonitorGimnasio monitor) {
 		this.id = id;
 		this.monitor = monitor;
 	}
 	
-	// Getters
 	public int getId() {
 		return id;
 	}
@@ -34,34 +32,31 @@ public class Cliente implements Runnable {
 	@Override
 	public void run() {
 		
-		int torno = monitor.usarTorno(X);
+		try {
+			int torno = monitor.usarTorno(X);
 
-		try {
 			Thread.sleep(X);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		
-		monitor.liberarTorno(torno, X);
-		
-		int[] resultado = monitor.usarZona(id, X, Y, torno);
-		boolean esPremium = (resultado[1] == 1);
-		int zona = resultado[0];
-		
-		
-		if (esPremium)
-			monitor.usarBicicletaPremium(Y);
-		
-		try {
+			
+			monitor.liberarTorno(torno, X);
+			
+			int[] resultado = monitor.usarZona(id, X, Y, torno);
+			boolean esPremium = (resultado[1] == 1);
+			int zona = resultado[0];
+			
+			
+			if (esPremium)
+				monitor.usarBicicletaPremium(Y);
+			
 			Thread.sleep(Y);
+			
+			if (esPremium)
+				monitor.liberarBicicletaPremium(Y);
+			
+			monitor.liberarZona(zona, Y);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			System.err.println("Cliente " + id + " interrumpido.");
+			Thread.currentThread().interrupt();
 		}
-		
-		if (esPremium)
-			monitor.liberarBicicletaPremium(Y);
-		
-		monitor.liberarZona(zona, Y);
 		
 	}
 }

@@ -3,8 +3,8 @@ package Ejercicio3;
 public class Programa {
 	
 	public static final int NUM_CLIENTES = 50;
-	public static final MonitorGimnasio monitor = new MonitorGimnasio();
-	public static final Panel panel = new Panel("Panel", 800, 800);
+	public static final MonitorPantalla pantalla = new MonitorPantalla();
+	public static final MonitorGimnasio monitor = new MonitorGimnasio(pantalla);
 	
 	public static void main(String[] args) {
 		
