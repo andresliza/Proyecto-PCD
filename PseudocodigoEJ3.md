@@ -59,12 +59,7 @@ MONITOR MonitorGimnasio:
     Entero tiempoBicicletaPremium = 0
     Entero maquinasZona[4] = {5, 5, 5, 5}
     Boolean bicicletaPremiumEnUso = falso
-    
     MonitorPantalla pantalla
-
-    CONSTRUCTOR(MonitorPantalla p):
-        pantalla = p
-    FIN CONSTRUCTOR
 
     FUNCION usarTorno(Entero X):
         Entero torno = obtenerTornoLibre()
