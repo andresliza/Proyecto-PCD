@@ -34,128 +34,150 @@ Espera bicicleta premium (si aplica)=----<br>
 
 # PSEUDOCÓDIGO
 
-MONITOR gimnasio:<br>
-
-    Entero tiempoTornos[3] = {0, 0, 0}
-    Entero tiempoZonas[4] = {0, 0, 0, 0} // Tiempo de espera en cada zona
-    Entero tiempoBicicletaPremium = 0
-
-    Entero maquinasZona[4] = {5, 5, 5, 5} // Máquinas disponibles en cada zona
-    Boolean bicicletaPremium = false // Estado de la bicicleta premium
-
-    Condition tornoDisponible[3]
-    Condition zonaDisponible[4]
-    Condition bicicletaPremiumDisponible
-
-    FUNCION accederTorno(Entero X):
-        
-        Entero tornoLibre = obtenerTornoLibre()
-
-        SI tornoLibre != -1 ENTONCES
-            tiempoTornos[tornoLibre] += X
-            RETURN tornoLibre
-        SINO
-            Entero tornoMenorEspera = obtenerTornoMenorEspera()
-
-            MIENTRAS tiempoTornos[tornoMenorEspera] != 0 HACER
-                delay(tornoDisponible[tornoMenorEspera])
-            FIN MIENTRAS
-
-            tiempoTornos[tornoMenorEspera] += X
-            RETURN tornoMenorEspera
-        FIN SI
-    FIN FUNCION
-
-    FUNCION accederZona(Entero zonaElegida, Entero Y):
-        SI maquinasZona[zonaElegida] > 0 ENTONCES
-            maquinasZona[zonaElegida] -= 1
-            tiempoZonas[zonaElegida] += Y
-        SINO
-            MIENTRAS maquinasZona[zonaElegida] == 0 HACER
-                delay(zonaDisponible[zonaElegida])
-            FIN MIENTRAS
-
-            maquinasZona[zonaElegida] -= 1
-            tiempoZonas[zonaElegida] += Y
-        FIN SI
-    FIN FUNCION
-
-    FUNCION accederBicicletaPremium(Entero Y):
-        SI bicicletaPremium == false ENTONCES
-            bicicletaPremium = true
-            tiempoBicicletaPremium += Y
-        SINO
-            MIENTRAS bicicletaPremium == true HACER
-                delay(bicicletaPremiumDisponible)
-            FIN MIENTRAS
-
-            bicicletaPremium = true
-            tiempoBicicletaPremium += Y
-        FIN SI
-    FIN FUNCION
-
-FIN MONITOR<br>
-
-
-PROCESO Cliente:<br>
-
-    Entero id
-    Entero X = aleatorio(1, 5) // Tiempo en el torno (en milisegundos)
-    Entero Y = aleatorio(60, 300) // Tiempo de entrenamiento (en milisegundos)
-
-
-    FUNCION entrenar():
-        // Paso 1. Acceso al gimnasio mediante tornos
-        Entero torno = gimnasio.accederTorno(X)
-        Sleep(X)
-        gimnasio.liberarTorno(torno)
-
-        // Paso 2. Obtener estimacion actual y elegir zona (sin incluirse)
-        Entero esperaZonas[4] = gimnasio.obtenerEstimacionZonas()
-        Entero zona = gimnasio.elegirZona(esperaZonas)
-
-        // Imprimir informacion despues de elegir zona y antes de entrenar
+MONITOR MonitorPantalla:
+    
+    PROCEDIMIENTO imprimirInforme(id, X, Y, torno, zona, esPremium, esperasZonas, esperaBici):
         Imprimir "--------------------------------------------------------------"
         Imprimir "Cliente " + id + " ha pasado por el torno: " + torno
         Imprimir "Tiempo en el torno (acceso): " + X
-        Imprimir "Zona elegida: " + zona
+        Imprimir "Zona elegida: " + (zona + 1)
         Imprimir "Tiempo de entrenamiento: " + Y
         Imprimir "Estimación de espera (sin incluirse a sí mismo):"
-        Imprimir "Zona1(Cardio)=" + esperaZonas[0] + ", Zona2(Fuerza)=" + esperaZonas[1] + ", Zona3(Funcional)=" + esperaZonas[2] + ", Zona4(Estiramientos)=" + esperaZonas[3]
-        SI zona == 0 ENTONCES
-            Imprimir "Espera bicicleta premium (si aplica)=" + gimnasio.tiempoEsperaBicicletaPremium()
-        SINO
-            Imprimir "Espera bicicleta premium (si aplica)=0"
+        Imprimir "Zona1(Cardio)=" + esperasZonas[0] + ", Zona2(Fuerza)=" + esperasZonas[1] + ", Zona3(Funcional)=" + esperasZonas[2] + ", Zona4(Estiramientos)=" + esperasZonas[3]
+        SI esPremium ENTONCES
+            Imprimir "Espera bicicleta premium: " + esperaBici
         FIN SI
         Imprimir "--------------------------------------------------------------"
+    FIN PROCEDIMIENTO
 
-        // Paso 3. Reservar recurso y entrenar
-        gimnasio.accederZona(zona, Y)
+FIN MONITOR
 
-        SI zona == 0 Y probabilidad(30) ENTONCES
-            gimnasio.accederBicicletaPremium(Y)
-            Sleep(Y)
-            gimnasio.liberarBicicletaPremium()
-        SINO
-            Sleep(Y)
+MONITOR MonitorGimnasio:
+
+    Entero tiempoTornos[3] = {0, 0, 0}
+    Entero tiempoZonas[4] = {0, 0, 0, 0}
+    Entero tiempoBicicletaPremium = 0
+    Entero maquinasZona[4] = {5, 5, 5, 5}
+    Boolean bicicletaPremiumEnUso = falso
+    
+    MonitorPantalla pantalla
+
+    CONSTRUCTOR(MonitorPantalla p):
+        pantalla = p
+    FIN CONSTRUCTOR
+
+    FUNCION usarTorno(Entero X):
+        Entero torno = obtenerTornoLibre()
+
+        SI torno == -1 ENTONCES
+            Entero tornoMenorEspera = obtenerTornoMenorEspera()
+            MIENTRAS tiempoTornos[tornoMenorEspera] > 0 HACER
+                WAIT()
+                tornoMenorEspera = obtenerTornoMenorEspera()
+            FIN MIENTRAS
+            torno = tornoMenorEspera
         FIN SI
 
-        gimnasio.liberarZona(zona)
-FIN PROCESO<br>
+        tiempoTornos[torno] += X
+        RETORNAR torno
+    FIN FUNCION
+
+    PROCEDIMIENTO liberarTorno(Entero torno, Entero X):
+        tiempoTornos[torno] -= X
+        SIGNAL_ALL()
+    FIN PROCEDIMIENTO
+
+    FUNCION usarZona(Entero clienteId, Entero X, Entero Y, Entero torno):
+        Entero zona
+        Enteros zonasLibres[] = obtenerZonasLibres()
+
+        SI longitud(zonasLibres) > 0 ENTONCES
+            zona = elegirAleatoria(zonasLibres)
+        SINO
+            zona = obtenerZonaMenorEspera()
+            MIENTRAS maquinasZona[zona] == 0 HACER
+                WAIT()
+                zona = obtenerZonaMenorEspera()
+            FIN MIENTRAS
+        FIN SI
+
+        Boolean esPremium = (zona == 0 Y aleatorio() < 0.3)
+        
+        // Impresión sincronizada fuera del monitor del gimnasio para no bloquearlo
+        pantalla.imprimirInforme(clienteId, X, Y, torno, zona, esPremium, tiempoZonas, tiempoBicicletaPremium)
+
+        tiempoZonas[zona] += Y
+        maquinasZona[zona] -= 1
+
+        RETORNAR {zona, esPremium}
+    FIN FUNCION
+
+    PROCEDIMIENTO liberarZona(Entero zona, Entero Y):
+        tiempoZonas[zona] -= Y
+        maquinasZona[zona] += 1
+        SIGNAL_ALL()
+    FIN PROCEDIMIENTO
+
+    PROCEDIMIENTO usarBicicletaPremium(Entero Y):
+        MIENTRAS bicicletaPremiumEnUso HACER
+            WAIT()
+        FIN MIENTRAS
+        bicicletaPremiumEnUso = verdadero
+        tiempoBicicletaPremium += Y
+    FIN PROCEDIMIENTO
+
+    PROCEDIMIENTO liberarBicicletaPremium(Entero Y):
+        tiempoBicicletaPremium -= Y
+        bicicletaPremiumEnUso = falso
+        SIGNAL_ALL()
+    FIN PROCEDIMIENTO
+
+FIN MONITOR
 
 
-PROCESO Principal:<br>
-    Hilo clientes[50]<br>
+PROCESO Cliente:
+
+    Entero id
+    MonitorGimnasio gimnasio
+    Entero X = aleatorio(1, 5)
+    Entero Y = aleatorio(60, 300)
+
+    FUNCION run():
+        // Paso 1: Torno
+        Entero torno = gimnasio.usarTorno(X)
+        Sleep(X)
+        gimnasio.liberarTorno(torno, X)
+
+        // Paso 2: Zona (incluye elección e impresión atómica)
+        {zona, esPremium} = gimnasio.usarZona(id, X, Y, torno)
+
+        SI esPremium ENTONCES
+            gimnasio.usarBicicletaPremium(Y)
+        FIN SI
+
+        Sleep(Y)
+
+        SI esPremium ENTONCES
+            gimnasio.liberarBicicletaPremium(Y)
+        FIN SI
+
+        gimnasio.liberarZona(zona, Y)
+    FIN FUNCION
+
+FIN PROCESO
+
+
+PROCESO Principal:
+    MonitorPantalla pantalla = NUEVO MonitorPantalla()
+    MonitorGimnasio gimnasio = NUEVO MonitorGimnasio(pantalla)
+    Hilo clientes[50]
 
     PARA i = 0 HASTA 49 HACER
-        clientes[i] = crearHilo Cliente(i)
+        clientes[i] = crearHilo Cliente(i, gimnasio)
+        clientes[i].start()
     FIN PARA
 
     PARA i = 0 HASTA 49 HACER
         join(clientes[i])
     FIN PARA
 FIN PROCESO
-
-
-
-
