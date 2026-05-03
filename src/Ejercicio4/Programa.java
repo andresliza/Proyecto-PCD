@@ -4,29 +4,28 @@ import messagepassing.MailBox;
 
 public class Programa {
 
-    private static final int NUM_AFICIONADOS = 50;
-    private static final int REPETICIONES_POR_AFICIONADO = 5;
+    public static final int NUM_AFICIONADOS = 50;
+    public static final int REPETICIONES_POR_AFICIONADO = 5;
+
+    public static MailBox buzonControlador;
+    public static MailBox buzonTornoL;
+    public static MailBox buzonTornoR;
+    public static MailBox buzonPantalla;
+    public static MailBox[] buzonesAficionados;
 
     public static void main(String[] args) {
 
-        MailBox buzonControlador = new MailBox(NUM_AFICIONADOS); // Capacidad para recibir peticiones de todos los aficionados
+        buzonControlador = new MailBox(NUM_AFICIONADOS);
+        buzonTornoL = new MailBox(1);
+        buzonTornoR = new MailBox(1);
+        buzonPantalla = new MailBox(1);
 
-        // cada torno solo puede atender a un aficionao a la vez
-        MailBox buzonTornoL = new MailBox(1);
-        MailBox buzonTornoR = new MailBox(1);
-        MailBox buzonPantalla = new MailBox(1);
-
-        MailBox[] buzonesAficionados = new MailBox[NUM_AFICIONADOS];    // 1 buzón por aficionado
-        Thread[] hilosAficionados = new Thread[NUM_AFICIONADOS]; // 1 hilo por aficionado
-
+        buzonesAficionados = new MailBox[NUM_AFICIONADOS];
         for (int i = 0; i < NUM_AFICIONADOS; i++) {
             buzonesAficionados[i] = new MailBox(1);
         }
 
-        ControladorAccesos controlador = new ControladorAccesos(
-                buzonControlador,
-                buzonesAficionados,
-                NUM_AFICIONADOS * REPETICIONES_POR_AFICIONADO);
+        ControladorAccesos controlador = new ControladorAccesos(NUM_AFICIONADOS * REPETICIONES_POR_AFICIONADO);
         Thread hiloControlador = new Thread(controlador);
 
         buzonTornoL.send("LIBRE");
@@ -35,9 +34,10 @@ public class Programa {
 
         hiloControlador.start();
 
+        Thread[] hilosAficionados = new Thread[NUM_AFICIONADOS];
         for (int i = 0; i < NUM_AFICIONADOS; i++) {
-            Aficionado aficionado = new Aficionado(i, buzonControlador, buzonTornoL, buzonTornoR, buzonesAficionados, buzonPantalla);
-            Thread hiloAficionado = new Thread(aficionado, Integer.toString(i+1));
+            Aficionado aficionado = new Aficionado(i);
+            Thread hiloAficionado = new Thread(aficionado, Integer.toString(i + 1));
             hilosAficionados[i] = hiloAficionado;
             hiloAficionado.start();
         }

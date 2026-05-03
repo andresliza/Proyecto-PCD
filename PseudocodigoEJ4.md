@@ -28,12 +28,9 @@ Aficionado id liberando la cola X”
 
 # PSEUDOCÓDIGO
 
-PROCESO ControladorAccesos
+PROCESO ControladorAccesos(Entero peticionesEsperadas)
 
-    Buzón buzónControlador, buzónTornoR, buzónTornoL
-    Buzón[50] buzonesAficionados
-
-    PARA SIEMPRE HACER
+    PARA i = 1 HASTA peticionesEsperadas HACER
         Mensaje peticion = buzónControlador.recibir()
         Caracter torno
 
@@ -48,73 +45,65 @@ PROCESO ControladorAccesos
 
 FIN PROCESO
 
-PROCESO Aficionado
+PROCESO Aficionado(Entero id)
 
-    Entero id
-
-    PARA i = 0 HASTA 4 HACER
-        // Acción previa
+    PARA i = 1 HASTA 5 HACER
+        // 1. Acción previa
         Entero tiempoPrevio = aleatorioEntre(1, 10)
         Sleep(tiempoPrevio)
 
-        // Tiempo estimado de validación
+        // 2. Solicitar cola
         Entero tiempoEstimado = aleatorioEntre(1, 10)
-
-        // Enviar petición al controlador de accesos
-        Mensaje peticion = {
-            id: id,
-            tiempoEstimado: tiempoEstimado
-        }
+        Mensaje peticion = { id: id, tiempoEstimado: tiempoEstimado }
         buzónControlador.enviar(peticion)
         Caracter tornoAsignado = buzonesAficionados[id].recibir()
 
+        // 3. Validación en el torno asignado
         SI tornoAsignado == 'R' ENTONCES
-            buzonTornoR.recibir()
+            buzónTornoR.recibir()
         SINO
-            buzonTornoL.recibir()
+            buzónTornoL.recibir()
         FIN SI
 
+        Sleep(tiempoEstimado)
+
+        // 4. Libera la cola
+        SI tornoAsignado == 'R' ENTONCES
+            buzónTornoR.enviar("LIBRE")
+        SINO
+            buzónTornoL.enviar("LIBRE")
+        FIN SI
+
+        // 5. Imprimir información (bloque de pantalla)
+        buzónPantalla.recibir()
         Imprimir "Aficionado " + id + " ha usado la cola " + tornoAsignado
         Imprimir "Tiempo de validación = " + tiempoEstimado
         Imprimir "Thread.sleep(" + tiempoEstimado + ")" 
-        Sleep(tiempoEstimado)
-
-        SI tornoAsignado == 'R' ENTONCES
-            buzonTornoR.enviar("LIBRE")
-        SINO
-            buzonTornoL.enviar("LIBRE")
-        FIN SI
-
         Imprimir "Aficionado " + id + " liberando la cola " + tornoAsignado
+        buzónPantalla.enviar("LIBRE")
     FIN PARA
 FIN PROCESO
 
-
-
-
-
 PROCESO Principal
-    
+
     Buzón buzónControlador = crearBuzón(50)
-    Buzón buzónTornoR, buzónTornoL = crearBuzón(1)
-
+    Buzón buzónTornoR = crearBuzón(1)
+    Buzón buzónTornoL = crearBuzón(1)
+    Buzón buzónPantalla = crearBuzón(1)
     Buzón[50] buzonesAficionados
-    Hilo[50] aficionados
-
+    
     PARA i = 0 HASTA 49 HACER
         buzonesAficionados[i] = crearBuzón(1)
     FIN PARA
 
-    Hilo controlador = ControladorAccesos(buzónControlador, buzónTornoR, buzónTornoL, buzonesAficionados)
+    buzónTornoR.enviar("LIBRE")
+    buzónTornoL.enviar("LIBRE")
+    buzónPantalla.enviar("LIBRE")
 
-    buzonTornoR.enviar("LIBRE")
-    buzonTornoL.enviar("LIBRE")
+    Iniciar ControladorAccesos(50 * 5)
 
-    controlador.iniciar()
     PARA i = 0 HASTA 49 HACER
-        aficionados[i] = Aficionado(i, buzónControlador, buzonesAficionados)
-        aficionados[i].iniciar()
+        Iniciar Aficionado(i)
     FIN PARA
 
 FIN PROCESO
-

@@ -1,20 +1,11 @@
 package Ejercicio4;
 
-import messagepassing.MailBox;
-
 public class Aficionado implements Runnable {
 
     int idAficionado;
-    MailBox buzonControlador, buzonTornoL, buzonTornoR, buzonPantalla;
-    MailBox[] buzonesAficionados;
 
-    public Aficionado(int _idAficionado, MailBox _buzonControlador, MailBox _buzonTornoL, MailBox _buzonTornoR, MailBox[] _buzonesAficionados, MailBox _buzonPantalla) {
+    public Aficionado(int _idAficionado) {
         idAficionado = _idAficionado;
-        buzonControlador = _buzonControlador;
-        buzonTornoL = _buzonTornoL;
-        buzonTornoR = _buzonTornoR;
-        buzonesAficionados = _buzonesAficionados;
-        buzonPantalla = _buzonPantalla;
     }
 
     @Override
@@ -33,8 +24,8 @@ public class Aficionado implements Runnable {
             int tiempoEstimado = (int) (Math.random() * 10) + 1;
 
             Peticion peticion = new Peticion(idAficionado, tiempoEstimado);
-            buzonControlador.send(peticion);
-            Object recibido = buzonesAficionados[idAficionado].receive();
+            Programa.buzonControlador.send(peticion);
+            Object recibido = Programa.buzonesAficionados[idAficionado].receive();
 
             if (!(recibido instanceof Character)) {
                 System.out.println("Aficionado " + idAficionado + ": Respuesta no válida recibida.");
@@ -43,14 +34,10 @@ public class Aficionado implements Runnable {
 
             char tornoAsignado = (Character) recibido;
 
-            if (tornoAsignado == 'L') buzonTornoL.receive();
-            else buzonTornoR.receive();
-
-            buzonPantalla.receive();
-            System.out.println("Aficionado " + this.idAficionado + " ha usado la cola " + tornoAsignado);
-            System.out.println("Tiempo de validación = " + tiempoValidacion);
-            System.out.println("Thread.sleep(" + tiempoEstimado + ")");
-            buzonPantalla.send("LIBRE");
+            if (tornoAsignado == 'L')
+                Programa.buzonTornoL.receive();
+            else
+                Programa.buzonTornoR.receive();
 
             try {
                 Thread.sleep(tiempoEstimado);
@@ -58,12 +45,17 @@ public class Aficionado implements Runnable {
                 e.printStackTrace();
             }
 
-            if (tornoAsignado == 'L') buzonTornoL.send("LIBRE");
-            else buzonTornoR.send("LIBRE");
+            if (tornoAsignado == 'L')
+                Programa.buzonTornoL.send("LIBRE");
+            else
+                Programa.buzonTornoR.send("LIBRE");
 
-            buzonPantalla.receive();
+            Programa.buzonPantalla.receive();
+            System.out.println("Aficionado " + this.idAficionado + " ha usado la cola " + tornoAsignado);
+            System.out.println("Tiempo de validación = " + tiempoEstimado);
+            System.out.println("Thread.sleep(" + tiempoEstimado + ")");
             System.out.println("Aficionado " + this.idAficionado + " liberando la cola " + tornoAsignado);
-            buzonPantalla.send("LIBRE");
+            Programa.buzonPantalla.send("LIBRE");
         }
 
     }
