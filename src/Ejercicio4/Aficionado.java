@@ -4,18 +4,17 @@ import messagepassing.MailBox;
 
 public class Aficionado implements Runnable {
 
-    private static final Object PANTALLA_LOCK = new Object();
-
     int idAficionado;
-    MailBox buzonControlador, buzonTornoL, buzonTornoR;
+    MailBox buzonControlador, buzonTornoL, buzonTornoR, buzonPantalla;
     MailBox[] buzonesAficionados;
 
-    public Aficionado(int _idAficionado, MailBox _buzonControlador, MailBox _buzonTornoL, MailBox _buzonTornoR, MailBox[] _buzonesAficionados) {
+    public Aficionado(int _idAficionado, MailBox _buzonControlador, MailBox _buzonTornoL, MailBox _buzonTornoR, MailBox[] _buzonesAficionados, MailBox _buzonPantalla) {
         idAficionado = _idAficionado;
         buzonControlador = _buzonControlador;
         buzonTornoL = _buzonTornoL;
         buzonTornoR = _buzonTornoR;
         buzonesAficionados = _buzonesAficionados;
+        buzonPantalla = _buzonPantalla;
     }
 
     @Override
@@ -47,11 +46,11 @@ public class Aficionado implements Runnable {
             if (tornoAsignado == 'L') buzonTornoL.receive();
             else buzonTornoR.receive();
 
-            synchronized (PANTALLA_LOCK) {
-                System.out.println("Aficionado " + this.idAficionado + " ha usado la cola " + tornoAsignado);
-                System.out.println("Tiempo de validación = " + tiempoValidacion);
-                System.out.println("Thread.sleep(" + tiempoEstimado + ")");
-            }
+            buzonPantalla.receive();
+            System.out.println("Aficionado " + this.idAficionado + " ha usado la cola " + tornoAsignado);
+            System.out.println("Tiempo de validación = " + tiempoValidacion);
+            System.out.println("Thread.sleep(" + tiempoEstimado + ")");
+            buzonPantalla.send("LIBRE");
 
             try {
                 Thread.sleep(tiempoEstimado);
@@ -62,14 +61,11 @@ public class Aficionado implements Runnable {
             if (tornoAsignado == 'L') buzonTornoL.send("LIBRE");
             else buzonTornoR.send("LIBRE");
 
-            synchronized (PANTALLA_LOCK) {
-                System.out.println("Aficionado " + this.idAficionado + " liberando la cola " + tornoAsignado);
-            }
+            buzonPantalla.receive();
+            System.out.println("Aficionado " + this.idAficionado + " liberando la cola " + tornoAsignado);
+            buzonPantalla.send("LIBRE");
         }
 
     }
-
-
-
 
 }

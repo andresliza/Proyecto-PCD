@@ -14,6 +14,7 @@ public class Programa {
         // cada torno solo puede atender a un aficionao a la vez
         MailBox buzonTornoL = new MailBox(1);
         MailBox buzonTornoR = new MailBox(1);
+        MailBox buzonPantalla = new MailBox(1);
 
         MailBox[] buzonesAficionados = new MailBox[NUM_AFICIONADOS];    // 1 buzón por aficionado
         Thread[] hilosAficionados = new Thread[NUM_AFICIONADOS]; // 1 hilo por aficionado
@@ -30,11 +31,12 @@ public class Programa {
 
         buzonTornoL.send("LIBRE");
         buzonTornoR.send("LIBRE");
+        buzonPantalla.send("LIBRE");
 
         hiloControlador.start();
 
         for (int i = 0; i < NUM_AFICIONADOS; i++) {
-            Aficionado aficionado = new Aficionado(i, buzonControlador, buzonTornoL, buzonTornoR, buzonesAficionados);
+            Aficionado aficionado = new Aficionado(i, buzonControlador, buzonTornoL, buzonTornoR, buzonesAficionados, buzonPantalla);
             Thread hiloAficionado = new Thread(aficionado, Integer.toString(i+1));
             hilosAficionados[i] = hiloAficionado;
             hiloAficionado.start();
